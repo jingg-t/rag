@@ -1,0 +1,7 @@
+# Model Serving endpoint for the RAG MLflow model.
+resources:
+  model_serving_endpoints:
+    rag_endpoint:
+      name: doc-analyzer-rag-${bundle.target}
+      config:
+        served_entities: []  # TODO: registered model name/version from notebooks/04_log_and_deploy_model.py

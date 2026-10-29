@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(python -I \"C:\\\\Users\\\\Jing\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--dev-rag\\\\5ff329fa-d3fc-4452-ae7b-80b168bfbe69\\\\scratchpad\\\\add_todos.py\" c:\\\\dev\\\\rag)",
+      "PowerShell(python -m compileall -q c:\\\\dev\\\\rag\\\\src c:\\\\dev\\\\rag\\\\tests)",
+      "PowerShell(python -m py_compile c:\\\\dev\\\\rag\\\\src\\\\doc_analyzer\\\\ingest\\\\parse.py)",
+      "PowerShell(py -0)"
+    ]
+  }
+}

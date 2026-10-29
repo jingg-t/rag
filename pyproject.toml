@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "doc-analyzer"
+version = "0.1.0"
+description = "AI Document Analyzer: RAG platform on Azure Data Lake Storage, Databricks and Delta Lake"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.0",
+    "pypdf>=4.0",
+    "python-docx>=1.1",
+    "beautifulsoup4>=4.12",
+    "databricks-sdk>=0.30",
+    "databricks-vectorsearch>=0.40",
+    "mlflow>=2.15",
+]
+
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "python-multipart>=0.0.9",
+]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "pyspark>=3.5,<4",
+    "delta-spark>=3.2,<4",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: needs local Spark + delta-spark"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true

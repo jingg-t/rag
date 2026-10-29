@@ -1,0 +1,44 @@
+bundle:
+  name: doc-analyzer
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog catalog for this target
+  landing_path:
+    description: abfss:// path of the ADLS landing container
+  llm_endpoint:
+    description: Model Serving endpoint name for the answer model
+  embedding_endpoint:
+    description: Model Serving endpoint name for embeddings
+    default: databricks-gte-large-en
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://<workspace>.azuredatabricks.net  # TODO
+    variables:
+      catalog: doc_analyzer_dev
+      landing_path: abfss://landing@<storageaccount>.dfs.core.windows.net/uploads/  # TODO
+      llm_endpoint: <llm-endpoint>  # TODO
+
+  staging:
+    workspace:
+      host: https://<workspace>.azuredatabricks.net  # TODO
+    variables:
+      catalog: doc_analyzer_staging
+      landing_path: abfss://landing@<storageaccount>.dfs.core.windows.net/uploads/  # TODO
+      llm_endpoint: <llm-endpoint>  # TODO
+
+  prod:
+    mode: production
+    workspace:
+      host: https://<workspace>.azuredatabricks.net  # TODO
+    variables:
+      catalog: doc_analyzer_prod
+      landing_path: abfss://landing@<storageaccount>.dfs.core.windows.net/uploads/  # TODO
+      llm_endpoint: <llm-endpoint>  # TODO
