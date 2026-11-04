@@ -16,3 +16,7 @@ mlruns/
 .databricks/
 .databrickscfg
 .env
+
+# Claude Code
+CLAUDE.md
+.claude/

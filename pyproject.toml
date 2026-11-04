@@ -15,6 +15,9 @@ dependencies = [
     "databricks-sdk>=0.30",
     "databricks-vectorsearch>=0.40",
     "mlflow>=2.15",
+    "tokenizers>=0.19",
+    
+
 ]
 
 [project.optional-dependencies]
