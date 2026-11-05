@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING, Any
 
 import mlflow
 import pandas as pd
+from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.serving import EndpointCoreConfigInput, ServedEntityInput
 from mlflow.models import infer_signature
 from mlflow.models.resources import DatabricksServingEndpoint, DatabricksVectorSearchIndex
 from mlflow.pyfunc.model import PythonModel, PythonModelContext
@@ -70,7 +72,7 @@ def settings_from_config(config: dict[str, Any]) -> Settings:
 
 
 def log_model(settings: Settings, registered_model_name: str) -> str:
-    """Log and register RAGModel in Unity Catalog; return the model URI."""
+    """Log and register RAGModel in Unity Catalog; return the registered version."""
     for name, value in [
         ("VS_ENDPOINT", settings.vs_endpoint),
         ("VS_INDEX", settings.vs_index),
@@ -104,4 +106,33 @@ def log_model(settings: Settings, registered_model_name: str) -> str:
             registered_model_name=registered_model_name,
         )
     logger.info("logged %s as %s", info.model_uri, registered_model_name)
-    return str(info.model_uri)
+    return str(info.registered_model_version)
+
+
+def deploy_endpoint(
+    endpoint_name: str,
+    model_name: str,
+    version: str,
+    client: WorkspaceClient | None = None,
+) -> None:
+    """Create the serving endpoint or point it at this model version, without waiting for it.
+
+    Lives here rather than in the bundle because the version only exists after log_model.
+    """
+    client = client or WorkspaceClient()
+    served = [
+        ServedEntityInput(
+            entity_name=model_name,
+            entity_version=version,
+            workload_size="Small",
+            scale_to_zero_enabled=True,
+        )
+    ]
+    if endpoint_name in {e.name for e in client.serving_endpoints.list()}:
+        client.serving_endpoints.update_config(name=endpoint_name, served_entities=served)
+    else:
+        client.serving_endpoints.create(
+            name=endpoint_name,
+            config=EndpointCoreConfigInput(name=endpoint_name, served_entities=served),
+        )
+    logger.info("endpoint %s now deploying %s v%s", endpoint_name, model_name, version)

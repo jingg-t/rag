@@ -13,8 +13,8 @@ from doc_analyzer.index.vector_search import (
     wait_until_ready,
 )
 
-# TODO: read job params / widgets into overrides
-settings = Settings.from_env()
+overrides = {k.upper(): v for k, v in dbutils.widgets.getAll().items()}  # noqa: F821
+settings = Settings.from_env(overrides)
 client = get_client()
 ensure_endpoint(client, settings)
 ensure_index(client, settings)

@@ -3,22 +3,55 @@ resources:
   jobs:
     ingest_job:
       name: doc-analyzer-ingest-${bundle.target}
-      # TODO: schedule / file-arrival trigger, job cluster or serverless config
+      # Paused automatically in development mode.
+      trigger:
+        file_arrival:
+          url: ${var.landing_path}
+      max_concurrent_runs: 1
+      job_clusters:
+        - job_cluster_key: main
+          new_cluster:
+            spark_version: ${var.spark_version}
+            node_type_id: ${var.node_type}
+            num_workers: 0
+            data_security_mode: SINGLE_USER
+            spark_conf:
+              spark.databricks.cluster.profile: singleNode
+              spark.master: local[*]
+            custom_tags:
+              ResourceClass: SingleNode
+            spark_env_vars:
+              TOKENIZER_PATH: /Volumes/${var.catalog}/ops/models/bge-large-en-v1.5/tokenizer.json
       parameters:
         - name: catalog
           default: ${var.catalog}
         - name: landing_path
           default: ${var.landing_path}
+        - name: checkpoint_path
+          default: /Volumes/${var.catalog}/ops/checkpoints/
+        - name: vs_index
+          default: ${var.catalog}.gold.document_chunks_index
+        - name: embedding_endpoint
+          default: ${var.embedding_endpoint}
       tasks:
         - task_key: bronze
+          job_cluster_key: main
+          libraries:
+            - whl: ../dist/*.whl
           notebook_task:
             notebook_path: ../notebooks/01_ingest_bronze.py
         - task_key: silver_gold
+          job_cluster_key: main
+          libraries:
+            - whl: ../dist/*.whl
           depends_on:
             - task_key: bronze
           notebook_task:
             notebook_path: ../notebooks/02_build_silver_gold.py
         - task_key: sync_index
+          job_cluster_key: main
+          libraries:
+            - whl: ../dist/*.whl
           depends_on:
             - task_key: silver_gold
           notebook_task:

@@ -1,4 +1,3 @@
-# Vector Search endpoint + Delta Sync index on gold.document_chunks.
-# TODO: define once Asset Bundles support these resources in your CLI version;
-# until then they are created by doc_analyzer.index.vector_search (notebooks/03_sync_index.py).
+# The Vector Search endpoint and the Delta Sync index on gold.document_chunks are created by
+# doc_analyzer.index.vector_search (notebooks/03_sync_index.py).
 resources: {}

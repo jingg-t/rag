@@ -1,7 +1,37 @@
-# Model Serving endpoint for the RAG MLflow model.
+# Logs the RAG model and deploys it. The serving endpoint itself is created by
+# doc_analyzer.rag.model.deploy_endpoint, because its model version only exists after logging.
 resources:
-  model_serving_endpoints:
-    rag_endpoint:
-      name: doc-analyzer-rag-${bundle.target}
-      config:
-        served_entities: []  # TODO: registered model name/version from notebooks/04_log_and_deploy_model.py
+  jobs:
+    deploy_model_job:
+      name: doc-analyzer-deploy-model-${bundle.target}
+      max_concurrent_runs: 1
+      job_clusters:
+        - job_cluster_key: main
+          new_cluster:
+            spark_version: ${var.spark_version}
+            node_type_id: ${var.node_type}
+            num_workers: 0
+            data_security_mode: SINGLE_USER
+            spark_conf:
+              spark.databricks.cluster.profile: singleNode
+              spark.master: local[*]
+            custom_tags:
+              ResourceClass: SingleNode
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: vs_index
+          default: ${var.catalog}.gold.document_chunks_index
+        - name: embedding_endpoint
+          default: ${var.embedding_endpoint}
+        - name: llm_endpoint
+          default: ${var.llm_endpoint}
+        - name: serving_endpoint
+          default: doc-analyzer-rag-${bundle.target}
+      tasks:
+        - task_key: log_and_deploy
+          job_cluster_key: main
+          libraries:
+            - whl: ../dist/*.whl
+          notebook_task:
+            notebook_path: ../notebooks/04_log_and_deploy_model.py

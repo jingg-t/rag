@@ -4,6 +4,12 @@ bundle:
 include:
   - resources/*.yml
 
+artifacts:
+  doc_analyzer:
+    type: whl
+    build: python -m build --wheel
+    path: .
+
 variables:
   catalog:
     description: Unity Catalog catalog for this target
@@ -13,18 +19,24 @@ variables:
     description: Model Serving endpoint name for the answer model
   embedding_endpoint:
     description: Model Serving endpoint name for embeddings
-    default: databricks-gte-large-en
+    default: databricks-bge-large-en
+  spark_version:
+    description: Databricks Runtime of the job clusters
+    default: 16.4.x-scala2.12
+  node_type:
+    description: VM size of the single-node job clusters
+    default: Standard_D4ds_v5
 
 targets:
   dev:
     mode: development
     default: true
     workspace:
-      host: https://<workspace>.azuredatabricks.net  # TODO
+      host: https://adb-7405604740705070.10.azuredatabricks.net
     variables:
       catalog: doc_analyzer_dev
-      landing_path: abfss://landing@<storageaccount>.dfs.core.windows.net/uploads/  # TODO
-      llm_endpoint: <llm-endpoint>  # TODO
+      landing_path: abfss://landing@docanalyzer26247.dfs.core.windows.net/uploads/
+      llm_endpoint: databricks-claude-sonnet-5-5
 
   staging:
     workspace:
