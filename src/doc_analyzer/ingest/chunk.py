@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import lru_cache
@@ -33,7 +34,9 @@ class _Token:
 
 @lru_cache(maxsize=1)
 def _tokenizer() -> Tokenizer:
-    tokenizer = Tokenizer.from_pretrained(TOKENIZER_NAME)
+    # Clusters without internet: set TOKENIZER_PATH to a tokenizer.json in a UC volume.
+    path = os.environ.get("TOKENIZER_PATH")
+    tokenizer = Tokenizer.from_file(path) if path else Tokenizer.from_pretrained(TOKENIZER_NAME)
     tokenizer.no_truncation()
     tokenizer.no_padding()
     return tokenizer
